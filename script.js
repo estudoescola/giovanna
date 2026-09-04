@@ -115,7 +115,6 @@ function showScene(id) {
   updateExperienceUI();
   if (id === 'first') unlockDiscovery('first');
   if (id === 'cycle') unlockDiscovery('cycle');
-  if (id === 'brain') unlockDiscovery('brain');
   chapterNav.classList.remove('open');
   document.querySelector('#menuToggle').setAttribute('aria-expanded', 'false');
   scene.focus({ preventScroll: true });
@@ -203,9 +202,34 @@ function addRecoveryJourney() {
   }));
 }
 
+function addBrainLaboratory() {
+  const art = document.querySelector('.brain-art');
+  const progress = document.createElement('p');
+  const hotspots = document.createElement('div');
+  const found = new Set();
+  progress.className = 'brain-progress';
+  progress.textContent = '0/4 pontos explorados';
+  hotspots.className = 'brain-hotspots';
+  hotspots.innerHTML = '<button type="button" data-brain-point="reward" aria-label="Explorar recompensa">+</button><button type="button" data-brain-point="tolerance" aria-label="Explorar tolerância">+</button><button type="button" data-brain-point="control" aria-label="Explorar controle">+</button><button type="button" data-brain-point="withdrawal" aria-label="Explorar abstinência">+</button>';
+  art.append(hotspots, progress);
+  hotspots.querySelectorAll('button').forEach(point => point.addEventListener('click', () => {
+    found.add(point.dataset.brainPoint);
+    point.classList.add('found');
+    point.textContent = '✓';
+    progress.textContent = `${found.size}/4 pontos explorados`;
+    document.querySelector(`[data-brain="${point.dataset.brainPoint}"]`).click();
+    if (found.size === 4) {
+      document.querySelector('#brainMessage h3').textContent = 'CÉREBRO EXPLORADO';
+      document.querySelector('#brainMessage p').textContent = 'Você encontrou as quatro dimensões desta etapa. O cérebro aprende associações, mas cada história e cada recuperação são únicas.';
+      unlockDiscovery('brain');
+    }
+  }));
+}
+
 addFirstExperience();
 addRoutineTimeline();
 addRecoveryJourney();
+addBrainLaboratory();
 
 document.querySelectorAll('[data-next]').forEach(button => button.addEventListener('click', () => showScene(button.dataset.next)));
 navItems.forEach(item => item.addEventListener('click', () => showScene(item.dataset.target)));
@@ -284,7 +308,7 @@ quizNext.addEventListener('click', () => { quizIndex += 1; renderQuiz(); });
 
 const factorExplanations = { estresse: 'Pressões acumuladas podem aumentar a busca por alívio, mas não determinam o caminho de ninguém.', pressao: 'Ambientes e expectativas sociais podem influenciar escolhas de consumo.', isolamento: 'Menos apoio pode tornar mais difícil perceber mudanças ou pedir ajuda.', apoio: 'Relações de confiança podem facilitar conversa, cuidado e recuperação.' };
 document.querySelectorAll('.factor-grid button').forEach(button => button.addEventListener('click', () => { document.querySelector('#factorDetail').textContent = factorExplanations[button.dataset.factor]; }));
-function animateCounter() { const counter = document.querySelector('[data-counter]'); if (counter.dataset.done) return; const target = Number(counter.dataset.counter); let current = 0; const tick = () => { current += Math.ceil(target / 24); counter.textContent = Math.min(current, target); if (current < target) requestAnimationFrame(tick); else counter.dataset.done = 'true'; }; requestAnimationFrame(tick); }
+function animateCounter() { const counter = document.querySelector('[data-counter]'); if (counter.dataset.done) return; const target = Number(counter.dataset.counter); let current = 0; counter.textContent = target; const tick = () => { current += Math.ceil(target / 24); counter.textContent = Math.min(current, target); if (current < target) requestAnimationFrame(tick); else counter.dataset.done = 'true'; }; requestAnimationFrame(tick); }
 
 document.querySelector('#themeToggle').addEventListener('click', () => document.body.classList.toggle('light'));
 document.querySelector('#soundToggle').addEventListener('click', event => { const on = event.currentTarget.dataset.on !== 'true'; event.currentTarget.dataset.on = on; event.currentTarget.textContent = on ? '◉' : '◌'; event.currentTarget.title = on ? 'Som ambiente ativado' : 'Som ambiente desligado'; });
