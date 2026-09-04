@@ -24,12 +24,68 @@ const quizData = [
 ];
 let quizIndex = 0;
 let visited = [];
+const chapterNames = ['O copo', 'O ciclo', 'O cérebro', 'A escolha', 'O impacto', 'O espelho', 'Mitos', 'Saída', 'Ajuda', 'Última pergunta'];
+const chapterTargets = ['intro', 'cycle', 'brain', 'choice', 'impact', 'mirror', 'quiz', 'recovery', 'help', 'final'];
+const discoveryNames = {
+  first: 'Primeiro passo', cycle: 'Entendi o ciclo', brain: 'Explorei o cérebro', choice: 'Fiz uma escolha', impact: 'Observei os impactos', mirror: 'Olhei por dentro', quiz: 'Separei mito de realidade', recovery: 'Encontrei caminhos de ajuda'
+};
+let discoveries = [];
+let experienceStats = { knowledge: 0, support: 20, stress: 35 };
 
 try {
   const storedVisited = JSON.parse(localStorage.getItem('eraCopoVisited') || '[]');
   visited = Array.isArray(storedVisited) ? storedVisited : [];
 } catch {
   localStorage.removeItem('eraCopoVisited');
+}
+
+try {
+  discoveries = JSON.parse(localStorage.getItem('eraCopoDiscoveries') || '[]');
+  experienceStats = { ...experienceStats, ...JSON.parse(localStorage.getItem('eraCopoStats') || '{}') };
+  if (!Array.isArray(discoveries)) discoveries = [];
+} catch {
+  localStorage.removeItem('eraCopoDiscoveries');
+  localStorage.removeItem('eraCopoStats');
+}
+
+const experienceHud = document.createElement('aside');
+experienceHud.className = 'experience-hud';
+experienceHud.setAttribute('aria-label', 'Resumo da sua experiência');
+experienceHud.innerHTML = '<p class="hud-title">SUA EXPERIÊNCIA <small>metáfora narrativa, não diagnóstico</small></p><div class="hud-stats"><span><b id="knowledgeValue">0%</b> conhecimento</span><span><b id="supportValue">20%</b> apoio</span><span><b id="stressValue">35%</b> estresse</span></div><p class="hud-discoveries"><b id="discoveryValue">0/8</b> descobertas</p>';
+document.body.append(experienceHud);
+
+const journeyMap = document.createElement('div');
+journeyMap.className = 'journey-map';
+journeyMap.innerHTML = `<p class="panel-label">SUA JORNADA <span>capítulos visitados ficam coloridos</span></p><div>${chapterNames.map((name, index) => `<button type="button" data-map-target="${chapterTargets[index]}"><i>${String(index + 1).padStart(2, '0')}</i><span>${name}</span></button>`).join('')}</div>`;
+chapterNav.prepend(journeyMap);
+journeyMap.querySelectorAll('[data-map-target]').forEach(button => button.addEventListener('click', () => showScene(button.dataset.mapTarget)));
+
+const discoveryToast = document.createElement('div');
+discoveryToast.className = 'discovery-toast';
+discoveryToast.setAttribute('role', 'status');
+document.body.append(discoveryToast);
+
+function updateExperienceUI() {
+  document.querySelector('#knowledgeValue').textContent = `${experienceStats.knowledge}%`;
+  document.querySelector('#supportValue').textContent = `${experienceStats.support}%`;
+  document.querySelector('#stressValue').textContent = `${experienceStats.stress}%`;
+  document.querySelector('#discoveryValue').textContent = `${discoveries.length}/8`;
+  journeyMap.querySelectorAll('[data-map-target]').forEach(button => {
+    const target = document.getElementById(button.dataset.mapTarget);
+    button.classList.toggle('visited', target.classList.contains('active') || visited.includes(target.id));
+  });
+}
+
+function unlockDiscovery(id) {
+  if (!discoveryNames[id] || discoveries.includes(id)) return;
+  discoveries.push(id);
+  experienceStats.knowledge = Math.min(100, discoveries.length * 12);
+  localStorage.setItem('eraCopoDiscoveries', JSON.stringify(discoveries));
+  localStorage.setItem('eraCopoStats', JSON.stringify(experienceStats));
+  discoveryToast.textContent = `DESCOBERTA: ${discoveryNames[id]}`;
+  discoveryToast.classList.add('show');
+  setTimeout(() => discoveryToast.classList.remove('show'), 2600);
+  updateExperienceUI();
 }
 
 const mobileNavigation = document.createElement('div');
@@ -51,6 +107,11 @@ function showScene(id) {
   mobileBack.disabled = sceneIndex <= 0;
   visited = [...new Set([...visited, id])];
   localStorage.setItem('eraCopoVisited', JSON.stringify(visited));
+  document.body.dataset.chapter = scene.dataset.chapter;
+  updateExperienceUI();
+  if (id === 'first') unlockDiscovery('first');
+  if (id === 'cycle') unlockDiscovery('cycle');
+  if (id === 'brain') unlockDiscovery('brain');
   chapterNav.classList.remove('open');
   document.querySelector('#menuToggle').setAttribute('aria-expanded', 'false');
   scene.focus({ preventScroll: true });
@@ -132,6 +193,7 @@ function addRecoveryJourney() {
     steps.forEach(item => item.classList.remove('active'));
     step.classList.add('active');
     journey.querySelector('.journey-detail').textContent = details[index];
+    if (index === steps.length - 1) unlockDiscovery('recovery');
   }));
 }
 
@@ -142,7 +204,9 @@ addRecoveryJourney();
 document.querySelectorAll('[data-next]').forEach(button => button.addEventListener('click', () => showScene(button.dataset.next)));
 navItems.forEach(item => item.addEventListener('click', () => showScene(item.dataset.target)));
 window.addEventListener('hashchange', showSceneFromHash);
-showSceneFromHash();
+if (window.location.hash) showSceneFromHash();
+else showScene('intro');
+updateExperienceUI();
 document.querySelector('#menuToggle').addEventListener('click', event => { const open = chapterNav.classList.toggle('open'); event.currentTarget.setAttribute('aria-expanded', open); });
 
 document.querySelectorAll('.cycle-node').forEach(button => button.addEventListener('click', () => {
@@ -153,6 +217,7 @@ document.querySelectorAll('.cycle-node').forEach(button => button.addEventListen
   document.querySelector('.message-number').textContent = number;
   document.querySelector('.cycle-message h3').textContent = title;
   document.querySelector('.cycle-message p').textContent = text;
+  unlockDiscovery('cycle');
 }));
 
 document.querySelectorAll('.brain-tab').forEach(button => button.addEventListener('click', () => {
@@ -162,6 +227,7 @@ document.querySelectorAll('.brain-tab').forEach(button => button.addEventListene
   const [title, text] = brainContent[button.dataset.brain];
   document.querySelector('#brainMessage h3').textContent = title;
   document.querySelector('#brainMessage p').textContent = text;
+  unlockDiscovery('brain');
 }));
 
 document.querySelectorAll('.choice-card').forEach(button => button.addEventListener('click', () => {
@@ -171,13 +237,19 @@ document.querySelectorAll('.choice-card').forEach(button => button.addEventListe
   document.querySelector('#choiceResult').textContent = messages[button.dataset.choice];
   const path = { talk: [55, 20, 90, 18], walk: [45, 28, 70, 24], drink: [82, 70, 25, 68] }[button.dataset.choice];
   ['stress', 'isolation', 'support', 'risk'].forEach((name, index) => { document.querySelector(`[data-path="${name}"]`).style.width = `${path[index]}%`; });
+  unlockDiscovery('choice');
+  experienceStats.support = button.dataset.choice === 'talk' ? 60 : button.dataset.choice === 'walk' ? 40 : 20;
+  experienceStats.stress = button.dataset.choice === 'drink' ? 65 : 25;
+  localStorage.setItem('eraCopoStats', JSON.stringify(experienceStats));
+  updateExperienceUI();
   document.querySelector('#choiceContinue').classList.remove('hidden');
 }));
 
 document.querySelectorAll('.impact-orbit').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.impact-orbit').forEach(item => item.classList.remove('active')); button.classList.add('active'); document.querySelector('#impactDetail').textContent = impactContent[button.dataset.impact]; }));
+document.querySelectorAll('.impact-orbit').forEach(button => button.addEventListener('click', () => unlockDiscovery('impact')));
 
 document.querySelector('.scene-mirror .text-button').addEventListener('click', event => { const lines = document.querySelectorAll('.mirror-line'); const current = [...lines].findIndex(line => line.classList.contains('active')); if (current < lines.length - 1) { lines[current].classList.remove('active'); lines[current + 1].classList.add('active'); event.currentTarget.textContent = 'CONTINUAR  →'; } else showScene('quiz'); });
-document.querySelector('#mirrorSlider').addEventListener('input', event => { const value = Number(event.currentTarget.value); document.querySelector('#outsideInside').style.opacity = `${0.55 + Math.abs(value - 50) / 110}`; document.querySelector('#outsideInside').style.transform = `translateX(${(value - 50) / 12}px)`; });
+document.querySelector('#mirrorSlider').addEventListener('input', event => { const value = Number(event.currentTarget.value); document.querySelector('#outsideInside').style.opacity = `${0.55 + Math.abs(value - 50) / 110}`; document.querySelector('#outsideInside').style.transform = `translateX(${(value - 50) / 12}px)`; if (value > 85) unlockDiscovery('mirror'); });
 const quizNext = document.createElement('button');
 quizNext.className = 'text-button hidden';
 quizNext.type = 'button';
@@ -198,6 +270,7 @@ document.querySelectorAll('.quiz-options button').forEach(button => button.addEv
   const correct = button.dataset.answer === quizData[quizIndex][1];
   document.querySelectorAll('.quiz-options button').forEach(option => { option.disabled = true; option.classList.toggle('selected', option === button); });
   document.querySelector('#quizFeedback').textContent = `${correct ? 'ACERTOU. ' : 'OLHE DE NOVO. '}${quizData[quizIndex][2]}`;
+  if (quizIndex === quizData.length - 1) unlockDiscovery('quiz');
   if (quizIndex < quizData.length - 1) quizNext.classList.remove('hidden');
   else document.querySelector('#quizContinue').classList.remove('hidden');
 }));
@@ -209,4 +282,4 @@ function animateCounter() { const counter = document.querySelector('[data-counte
 
 document.querySelector('#themeToggle').addEventListener('click', () => document.body.classList.toggle('light'));
 document.querySelector('#soundToggle').addEventListener('click', event => { const on = event.currentTarget.dataset.on !== 'true'; event.currentTarget.dataset.on = on; event.currentTarget.textContent = on ? '◉' : '◌'; event.currentTarget.title = on ? 'Som ambiente ativado' : 'Som ambiente desligado'; });
-document.querySelector('#restartButton').addEventListener('click', () => { localStorage.removeItem('eraCopoVisited'); quizIndex = 0; renderQuiz(); document.querySelector('#introWine').style.height = '0'; document.querySelector('#glassCaption').textContent = 'clique para encher'; document.querySelectorAll('.mirror-line').forEach((line, index) => line.classList.toggle('active', index === 0)); showScene('intro'); });
+document.querySelector('#restartButton').addEventListener('click', () => { localStorage.removeItem('eraCopoVisited'); localStorage.removeItem('eraCopoDiscoveries'); localStorage.removeItem('eraCopoStats'); visited = []; discoveries = []; experienceStats = { knowledge: 0, support: 20, stress: 35 }; quizIndex = 0; renderQuiz(); document.querySelector('#introWine').style.height = '0'; document.querySelector('#glassCaption').textContent = 'clique para encher'; document.querySelectorAll('.mirror-line').forEach((line, index) => line.classList.toggle('active', index === 0)); updateExperienceUI(); showScene('intro'); });
