@@ -89,7 +89,7 @@ guide.className = 'guide-character';
 guide.innerHTML = '<div class="guide-avatar"><span class="guide-head"></span><span class="guide-body"></span></div><p class="guide-message">Toque no copo.</p>';
 document.body.append(guide);
 const guideMessage = guide.querySelector('.guide-message');
-const guideMessages = { intro: 'Toque no copo.', first: 'Você atravessou. Observe o começo.', cycle: 'Observe o ciclo.', brain: 'Explore o cérebro.', choice: 'Agora você precisa escolher.', impact: 'Veja o que ocupa espaço.', mirror: 'Olhe além da aparência.', quiz: 'Descubra o que é mito ou fato.', recovery: 'Ninguém precisa fazer isso sozinho.', help: 'Buscar ajuda também é uma escolha.', final: 'O que veio antes do copo?' };
+const guideMessages = { intro: 'Você percebeu?', first: 'E se acontecesse com você?', cycle: 'Por que isso parece resolver?', brain: 'O que ficou mais difícil?', choice: 'Você escolheria igual se ninguém visse?', impact: 'O que mais esse copo alcança?', mirror: 'O que existe por dentro?', quiz: 'Será que essa frase é verdade?', recovery: 'Qual pode ser o próximo passo?', help: 'O que você faria agora?', final: 'O que veio antes do copo?' };
 
 function updateExperienceUI() {
   document.querySelector('#knowledgeValue').textContent = `${experienceStats.knowledge}%`;
@@ -112,6 +112,20 @@ function unlockDiscovery(id) {
   discoveryToast.classList.add('show');
   setTimeout(() => discoveryToast.classList.remove('show'), 2600);
   updateExperienceUI();
+}
+
+function addCuriosityReveal(selector, question, answer) {
+  const section = document.querySelector(selector);
+  if (!section) return;
+  const reveal = document.createElement('div');
+  reveal.className = 'curiosity-reveal';
+  reveal.innerHTML = `<strong>${question}</strong><button type="button">DESCUBRIR <span>→</span></button><p hidden>${answer}</p>`;
+  section.querySelector('.section-inner').prepend(reveal);
+  reveal.querySelector('button').addEventListener('click', event => {
+    reveal.querySelector('p').hidden = false;
+    event.currentTarget.hidden = true;
+    reveal.classList.add('revealed');
+  });
 }
 
 const mobileNavigation = document.createElement('div');
@@ -381,6 +395,9 @@ addBrainLaboratory();
 addAttentionChallenge();
 addTimedDecision();
 addCrisisSimulation();
+addCuriosityReveal('#cycle', 'Por que uma coisa que alivia pode voltar ainda mais forte?', 'O alívio rápido pode ensinar o cérebro a repetir uma associação. Quando o efeito passa, o estresse continua ali.');
+addCuriosityReveal('#choice', 'Você faria a mesma escolha se ninguém estivesse olhando?', 'Pertencer a um grupo e lidar com um dia difícil podem influenciar decisões. Isso não é um diagnóstico: é um convite para observar o contexto.');
+addCuriosityReveal('#impact', 'Será que o copo fica só na sua mão?', 'Sono, humor, relações, estudos, trabalho e segurança também podem sentir efeitos. Cada pessoa tem uma história diferente.');
 
 document.querySelectorAll('[data-next]').forEach(button => button.addEventListener('click', () => showScene(button.dataset.next)));
 navItems.forEach(item => item.addEventListener('click', () => showScene(item.dataset.target)));
