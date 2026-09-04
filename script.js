@@ -17,12 +17,19 @@ const brainContent = {
 };
 const impactContent = { corpo: 'Sono, fígado, coração e sistema nervoso podem sentir os efeitos do consumo.', mente: 'Ansiedade, humor, memória e tomada de decisões podem mudar.', relacoes: 'Família, amizades e a sensação de pertencimento também podem ser afetadas.', vida: 'Estudos, trabalho, finanças, segurança e planos podem perder espaço.' };
 const quizData = [
-  ['Se eu só bebo aos finais de semana, não posso ter um problema.', 'myth', 'O padrão e as consequências importam mais do que o dia da semana.'],
-  ['Alcoolismo é apenas falta de força de vontade.', 'myth', 'Dependência envolve fatores biológicos, psicológicos e sociais.'],
-  ['Uma pessoa pode precisar de ajuda mesmo querendo parar.', 'truth', 'Querer parar é importante. Precisar de suporte não diminui essa vontade.'],
-  ['Uma frase isolada diagnostica dependência.', 'myth', 'Nenhuma frase sozinha faz diagnóstico. Uma conversa cuidadosa pode abrir caminho para ajuda.']
+  ['Se uma pessoa trabalha, estuda e mantém sua rotina, ela não pode ter um problema relacionado ao álcool.', 'myth', 'Uma pessoa pode manter algumas áreas funcionando e, ainda assim, apresentar problemas relacionados ao álcool.'],
+  ['Precisar de quantidades maiores de álcool para sentir o mesmo efeito pode ser um sinal de tolerância.', 'fact', 'A tolerância pode acontecer quando o organismo se adapta ao álcool.'],
+  ['Uma pessoa com dependência só precisa ter mais força de vontade para parar.', 'myth', 'A dependência é complexa e pode envolver fatores biológicos, psicológicos e sociais.'],
+  ['Interromper o consumo depois de um período de uso intenso pode causar sintomas de abstinência.', 'fact', 'Algumas pessoas podem apresentar sintomas físicos e psicológicos; uma avaliação profissional é importante.'],
+  ['O estresse pode influenciar a vontade de consumir álcool, mas não determina que alguém desenvolverá dependência.', 'fact', 'O desenvolvimento de problemas relacionados ao álcool é influenciado por diferentes fatores.'],
+  ['Beber apenas nos finais de semana significa que não existe risco de problemas relacionados ao álcool.', 'myth', 'Frequência não é o único aspecto relevante: quantidade, padrão e consequências também importam.'],
+  ['Uma recaída significa que a recuperação fracassou completamente.', 'myth', 'A recuperação pode envolver avanços e dificuldades; o plano de cuidado pode ser reavaliado.'],
+  ['Conversar com alguém de confiança pode ser um primeiro passo para procurar ajuda.', 'fact', 'Uma pessoa de confiança pode diminuir o isolamento e facilitar a busca por cuidado.'],
+  ['É possível perceber a existência de dependência apenas olhando para uma pessoa.', 'myth', 'Não existe uma aparência única; uma avaliação considera diferentes aspectos da vida e do consumo.'],
+  ['Procurar um profissional de saúde não significa necessariamente que a pessoa será internada.', 'fact', 'Buscar ajuda permite conversar sobre a situação e conhecer possibilidades de cuidado.']
 ];
 let quizIndex = 0;
+let quizCorrect = 0;
 let visited = [];
 const chapterNames = ['O copo', 'O ciclo', 'O cérebro', 'A escolha', 'O impacto', 'O espelho', 'Mitos', 'Saída', 'Ajuda', 'Última pergunta'];
 const chapterTargets = ['intro', 'cycle', 'brain', 'choice', 'impact', 'mirror', 'quiz', 'recovery', 'help', 'final'];
@@ -300,16 +307,25 @@ function renderQuiz() {
   document.querySelector('#quizBar').style.width = `${((quizIndex + 1) / quizData.length) * 100}%`;
   document.querySelector('#quizQuestion').textContent = `“${quizData[quizIndex][0]}”`;
   document.querySelector('#quizFeedback').textContent = '';
+  document.querySelector('#quizScore').textContent = `CONCEITOS DESCOBERTOS: ${quizIndex} / 10`;
+  document.querySelector('#quizComplete').classList.add('hidden');
   document.querySelector('#quizContinue').classList.add('hidden');
   quizNext.classList.add('hidden');
-  document.querySelectorAll('.quiz-options button').forEach(button => { button.disabled = false; button.classList.remove('selected'); });
+  document.querySelectorAll('.quiz-options button').forEach(button => { button.disabled = false; button.classList.remove('selected'); button.classList.remove('correct'); });
 }
 renderQuiz();
 document.querySelectorAll('.quiz-options button').forEach(button => button.addEventListener('click', () => {
   const correct = button.dataset.answer === quizData[quizIndex][1];
+  if (correct) quizCorrect += 1;
   document.querySelectorAll('.quiz-options button').forEach(option => { option.disabled = true; option.classList.toggle('selected', option === button); });
-  document.querySelector('#quizFeedback').textContent = `${correct ? 'ACERTOU. ' : 'OLHE DE NOVO. '}${quizData[quizIndex][2]}`;
-  if (quizIndex === quizData.length - 1) unlockDiscovery('quiz');
+  document.querySelector('#quizFeedback').textContent = `${correct ? 'VOCÊ DESCOBRIU. ' : 'QUASE. VAMOS ENTENDER. '}${quizData[quizIndex][2]}`;
+  document.querySelector('#quizScore').textContent = `CONCEITOS DESCOBERTOS: ${quizIndex + 1} / 10`;
+  if (quizIndex === quizData.length - 1) {
+    unlockDiscovery('quiz');
+    document.querySelector('#quizCorrect').textContent = quizCorrect;
+    document.querySelector('#quizSummary').textContent = `${quizCorrect} de 10 respostas coincidiram com o gabarito. Cada resposta abriu uma conversa, não uma avaliação sobre você.`;
+    document.querySelector('#quizComplete').classList.remove('hidden');
+  }
   if (quizIndex < quizData.length - 1) quizNext.classList.remove('hidden');
   else document.querySelector('#quizContinue').classList.remove('hidden');
 }));
@@ -321,4 +337,4 @@ function animateCounter() { const counter = document.querySelector('[data-counte
 
 document.querySelector('#themeToggle').addEventListener('click', () => document.body.classList.toggle('light'));
 document.querySelector('#soundToggle').addEventListener('click', event => { const on = event.currentTarget.dataset.on !== 'true'; event.currentTarget.dataset.on = on; event.currentTarget.textContent = on ? '◉' : '◌'; event.currentTarget.title = on ? 'Som ambiente ativado' : 'Som ambiente desligado'; });
-document.querySelector('#restartButton').addEventListener('click', () => { localStorage.removeItem('eraCopoVisited'); localStorage.removeItem('eraCopoDiscoveries'); localStorage.removeItem('eraCopoStats'); visited = []; discoveries = []; experienceStats = { knowledge: 0, support: 20, stress: 35 }; quizIndex = 0; renderQuiz(); document.querySelector('#introWine').style.height = '0'; document.querySelector('#glassCaption').textContent = 'clique para encher'; document.querySelectorAll('.mirror-line').forEach((line, index) => line.classList.toggle('active', index === 0)); updateExperienceUI(); showScene('intro'); });
+document.querySelector('#restartButton').addEventListener('click', () => { localStorage.removeItem('eraCopoVisited'); localStorage.removeItem('eraCopoDiscoveries'); localStorage.removeItem('eraCopoStats'); visited = []; discoveries = []; experienceStats = { knowledge: 0, support: 20, stress: 35 }; quizIndex = 0; quizCorrect = 0; renderQuiz(); document.querySelector('#introWine').style.height = '0'; document.querySelector('#glassCaption').textContent = 'clique para encher'; document.querySelectorAll('.mirror-line').forEach((line, index) => line.classList.toggle('active', index === 0)); updateExperienceUI(); showScene('intro'); });
