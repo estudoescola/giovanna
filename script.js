@@ -32,6 +32,13 @@ try {
   localStorage.removeItem('eraCopoVisited');
 }
 
+const mobileNavigation = document.createElement('div');
+mobileNavigation.className = 'mobile-navigation';
+mobileNavigation.innerHTML = '<button class="mobile-back" type="button" aria-label="Voltar ao capítulo anterior">← <span>VOLTAR</span></button><div class="mobile-progress" aria-label="Progresso da experiência"><i></i></div>';
+document.querySelector('.topbar').append(mobileNavigation);
+const mobileBack = mobileNavigation.querySelector('.mobile-back');
+const mobileProgress = mobileNavigation.querySelector('.mobile-progress i');
+
 function showScene(id) {
   const scene = document.getElementById(id);
   if (!scene) return;
@@ -39,6 +46,9 @@ function showScene(id) {
   scenes.forEach(item => item.classList.toggle('active', item === scene));
   navItems.forEach(item => item.classList.toggle('active', item.dataset.target === id));
   chapterCount.textContent = `${String(scene.dataset.chapter).padStart(2, '0')} / 10`;
+  mobileProgress.style.width = `${(Number(scene.dataset.chapter) / 10) * 100}%`;
+  const sceneIndex = scenes.indexOf(scene);
+  mobileBack.disabled = sceneIndex <= 0;
   visited = [...new Set([...visited, id])];
   localStorage.setItem('eraCopoVisited', JSON.stringify(visited));
   chapterNav.classList.remove('open');
@@ -49,6 +59,11 @@ function showScene(id) {
   if (id === 'impact') { document.querySelector('#spaceFill').style.width = '72%'; document.querySelector('#spaceValue').textContent = '72%'; }
   if (id === 'recovery') animateCounter();
 }
+
+mobileBack.addEventListener('click', () => {
+  const current = scenes.findIndex(scene => scene.classList.contains('active'));
+  if (current > 0) showScene(scenes[current - 1].id);
+});
 
 function showSceneFromHash() {
   const target = window.location.hash.slice(1);
