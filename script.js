@@ -51,8 +51,12 @@ try {
 const experienceHud = document.createElement('aside');
 experienceHud.className = 'experience-hud';
 experienceHud.setAttribute('aria-label', 'Resumo da sua experiência');
-experienceHud.innerHTML = '<p class="hud-title">SUA EXPERIÊNCIA <small>metáfora narrativa, não diagnóstico</small></p><div class="hud-stats"><span><b id="knowledgeValue">0%</b> conhecimento</span><span><b id="supportValue">20%</b> apoio</span><span><b id="stressValue">35%</b> estresse</span></div><p class="hud-discoveries"><b id="discoveryValue">0/8</b> descobertas</p>';
+experienceHud.innerHTML = '<button class="hud-toggle" type="button" aria-expanded="false">◈ <span>EXPERIÊNCIA</span></button><div class="hud-content"><p class="hud-title">SUA EXPERIÊNCIA <small>metáfora narrativa, não diagnóstico</small></p><div class="hud-stats"><span><b id="knowledgeValue">0%</b> conhecimento</span><span><b id="supportValue">20%</b> apoio</span><span><b id="stressValue">35%</b> estresse</span></div><p class="hud-discoveries"><b id="discoveryValue">0/8</b> descobertas</p></div>';
 document.body.append(experienceHud);
+experienceHud.querySelector('.hud-toggle').addEventListener('click', event => {
+  const open = experienceHud.classList.toggle('open');
+  event.currentTarget.setAttribute('aria-expanded', String(open));
+});
 
 const journeyMap = document.createElement('div');
 journeyMap.className = 'journey-map';
