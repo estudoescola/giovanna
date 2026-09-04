@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Era Só um Copo: uma experiência interativa sobre álcool, escolhas, dependência e recuperação.">
+  <meta property="og:title" content="Era Só um Copo">
+  <meta property="og:description" content="Uma experiência sobre álcool, escolhas e aquilo que acontece quando uma escolha deixa de parecer uma escolha.">
+  <title>Era Só um Copo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#intro" aria-label="Voltar ao início"><span class="brand-mark">◒</span> ERA SÓ UM COPO</a>
+    <div class="top-actions">
+      <span class="chapter-count" id="chapterCount">01 / 10</span>
+      <button class="icon-button" id="themeToggle" type="button" aria-label="Alternar tema" title="Alternar tema">◐</button>
+      <button class="icon-button" id="soundToggle" type="button" aria-label="Ativar som ambiente" title="Som ambiente desligado">◌</button>
+      <button class="menu-button" id="menuToggle" type="button" aria-expanded="false" aria-controls="chapterNav">MENU</button>
+    </div>
+  </header>
+  <nav class="chapter-nav" id="chapterNav" aria-label="Capítulos">
+    <button class="nav-item active" data-target="intro"><span>01</span> O copo</button>
+    <button class="nav-item" data-target="cycle"><span>02</span> O ciclo</button>
+    <button class="nav-item" data-target="brain"><span>03</span> O cérebro</button>
+    <button class="nav-item" data-target="choice"><span>04</span> A escolha</button>
+    <button class="nav-item" data-target="impact"><span>05</span> O impacto</button>
+    <button class="nav-item" data-target="mirror"><span>06</span> O espelho</button>
+    <button class="nav-item" data-target="quiz"><span>07</span> Mitos</button>
+    <button class="nav-item" data-target="recovery"><span>08</span> Saída</button>
+    <button class="nav-item" data-target="help"><span>09</span> Ajuda</button>
+    <button class="nav-item" data-target="final"><span>10</span> Última pergunta</button>
+  </nav>
+
+  <main id="experience">
+    <section class="scene scene-intro active" id="intro" data-chapter="1" tabindex="-1">
+      <div class="intro-copy reveal"><p class="eyebrow">Uma experiência em 5 minutos</p><h1>Era só<br><em>um copo.</em></h1><p class="lede">Sobre álcool, escolhas e aquilo que acontece quando uma escolha deixa de parecer uma escolha.</p><button class="primary-button next-button" data-next="first">COMEÇAR EXPERIÊNCIA <span>↗</span></button></div>
+      <div class="glass-stage" id="glassStage" role="button" tabindex="0" aria-label="Encher o copo">
+        <div class="glass"><div class="wine" id="introWine"></div><span class="glass-reflection"></span></div><div class="glass-shadow"></div>
+        <div class="glass-caption" id="glassCaption">clique para encher</div>
+      </div>
+    </section>
+
+    <section class="scene scene-first" id="first" data-chapter="1" tabindex="-1">
+      <div class="section-inner narrow"><p class="eyebrow amber-text">01 / O primeiro copo</p><h2>Todo mundo tem<br><em>uma primeira vez.</em></h2><p class="body-copy">Uma comemoração. Uma festa. Amigos. Curiosidade. Ou simplesmente vontade de experimentar.</p><p class="note">Experimentar álcool não significa automaticamente desenvolver dependência. Cada história começa de um lugar diferente.</p><button class="text-button next-button" data-next="cycle">CONTINUAR <span>→</span></button></div>
+    </section>
+
+    <section class="scene" id="cycle" data-chapter="2" tabindex="-1">
+      <div class="section-inner"><p class="eyebrow amber-text">02 / Quando vira rotina</p><h2>O ciclo parece<br><em>resolver.</em></h2><div class="cycle-layout"><div class="cycle-wheel" id="cycleWheel"><button class="cycle-node active" data-cycle="stress">ESTRESSE</button><span class="cycle-arrow">↓</span><button class="cycle-node" data-cycle="urge">VONTADE</button><span class="cycle-arrow">↓</span><button class="cycle-node" data-cycle="alcohol">ÁLCOOL</button><span class="cycle-arrow">↓</span><button class="cycle-node" data-cycle="relief">ALÍVIO</button><span class="cycle-arrow">↓</span><button class="cycle-node" data-cycle="cost">CONSEQUÊNCIA</button></div><div class="cycle-message" id="cycleMessage"><span class="message-number">01</span><h3>Hoje foi difícil.</h3><p>O estresse não é fraqueza. É o ponto onde a busca por alívio costuma começar.</p></div></div><button class="text-button next-button" data-next="brain">VER O QUE ACONTECE <span>→</span></button></div>
+    </section>
+
+    <section class="scene scene-brain" id="brain" data-chapter="3" tabindex="-1">
+      <div class="section-inner"><p class="eyebrow amber-text">03 / O cérebro em transformação</p><h2>Não é apenas<br><em>querer parar.</em></h2><div class="brain-layout"><div class="brain-art" aria-hidden="true"><div class="brain-shape"><i></i><i></i><i></i><i></i></div><span class="brain-pulse"></span></div><div class="brain-info"><p class="body-copy">A dependência envolve mudanças biológicas, psicológicas e sociais. Toque nos pontos para entender.</p><div class="brain-tabs"><button class="brain-tab active" data-brain="reward">RECOMPENSA</button><button class="brain-tab" data-brain="tolerance">TOLERÂNCIA</button><button class="brain-tab" data-brain="control">CONTROLE</button><button class="brain-tab" data-brain="withdrawal">ABSTINÊNCIA</button></div><div id="brainMessage"><h3>O alívio fica marcado</h3><p>O álcool pode afetar circuitos de recompensa e fazer o cérebro associar o consumo a uma sensação rápida de alívio.</p></div></div></div><button class="text-button next-button" data-next="choice">ENTRAR NA HISTÓRIA <span>→</span></button></div>
+    </section>
+
+    <section class="scene" id="choice" data-chapter="4" tabindex="-1">
+      <div class="section-inner narrow"><p class="eyebrow amber-text">04 / Você escolhe</p><h2>Você teve um<br><em>dia horrível.</em></h2><p class="body-copy">O que faria para atravessar esta noite?</p><div class="choice-grid" id="choiceGrid"><button class="choice-card" data-choice="talk"><span>01</span><strong>Conversaria com alguém</strong><small>procurar presença</small></button><button class="choice-card" data-choice="walk"><span>02</span><strong>Sairia para caminhar</strong><small>mudar o ritmo</small></button><button class="choice-card" data-choice="drink"><span>03</span><strong>Tomaria uma bebida</strong><small>desligar por um momento</small></button></div><div class="choice-result" id="choiceResult" aria-live="polite"></div><div class="path-panel"><div class="panel-label">MEU CAMINHO <span>ilustração desta experiência</span></div><div class="path-row"><span>ESTRESSE</span><i data-path="stress"></i></div><div class="path-row"><span>ISOLAMENTO</span><i data-path="isolation"></i></div><div class="path-row"><span>APOIO</span><i data-path="support"></i></div><div class="path-row"><span>RISCO</span><i data-path="risk"></i></div></div><button class="text-button next-button hidden" id="choiceContinue" data-next="impact">CONTINUAR <span>→</span></button></div>
+    </section>
+
+    <section class="scene scene-impact" id="impact" data-chapter="5" tabindex="-1">
+      <div class="section-inner"><p class="eyebrow amber-text">05 / O impacto invisível</p><h2>O copo não fica<br><em>em um lugar só.</em></h2><p class="body-copy">A dependência pode ocupar espaços diferentes da vida. Não existe uma linha única, nem uma frase isolada que faça um diagnóstico.</p><div class="impact-map" id="impactMap"><div class="impact-center">ÁLCOOL</div><button class="impact-orbit orbit-1" data-impact="corpo">CORPO</button><button class="impact-orbit orbit-2" data-impact="mente">MENTE</button><button class="impact-orbit orbit-3" data-impact="relacoes">RELAÇÕES</button><button class="impact-orbit orbit-4" data-impact="vida">VIDA</button></div><div class="impact-detail" id="impactDetail">Clique em uma área para ver o que pode ser afetado.</div><div class="trajectory-panel"><div class="panel-label">TRAJETÓRIA ILUSTRATIVA <span>não é uma escala clínica</span></div><div class="trajectory-line"><b>curiosidade</b><b>hábito</b><b>tolerância</b><b>dependência</b><svg viewBox="0 0 600 120" role="img" aria-label="Linha ilustrativa de uma trajetória crescente"><path d="M0 108 C130 108 150 94 250 94 S330 65 390 65 S470 18 600 18"/></svg></div><p>O desenvolvimento de problemas relacionados ao álcool varia de pessoa para pessoa.</p></div><div class="space-meter"><div><span>O álcool ocupa espaço</span><strong id="spaceValue">18%</strong></div><div class="space-track"><i id="spaceFill"></i></div><small>metáfora visual, não um indicador médico</small></div><div class="radar-wrap"><div class="radar-chart"><i></i><i></i><i></i><i></i><span>SAÚDE</span><span>MENTE</span><span>FAMÍLIA</span><span>VIDA SOCIAL</span></div><p>Impactos apresentados como ilustração conceitual.</p></div><button class="text-button next-button" data-next="mirror">CONTINUAR <span>→</span></button></div>
+    </section>
+
+    <section class="scene scene-mirror" id="mirror" data-chapter="6" tabindex="-1">
+      <div class="mirror-copy"><p class="eyebrow">06 / O que ninguém vê</p><p class="mirror-line active">Ele só está bebendo com os amigos.</p><p class="mirror-line">Eu preciso disso para conseguir relaxar.</p><label class="mirror-slider-label" for="mirrorSlider"><span>POR FORA</span><input id="mirrorSlider" type="range" min="0" max="100" value="50"><span>POR DENTRO</span></label><div class="outside-inside" id="outsideInside"><div><span>POR FORA</span><div class="mini-bars"><i style="--bar:45%">trabalho</i><i style="--bar:60%">família</i><i style="--bar:75%">amigos</i></div></div><div><span>POR DENTRO</span><div class="mini-bars"><i style="--bar:90%">estresse</i><i style="--bar:78%">ansiedade</i><i style="--bar:88%">vontade</i></div></div></div><button class="text-button next-button" data-next="quiz">OLHAR DE NOVO <span>→</span></button></div><div class="mirror-split"><div><span>POR FORA</span><strong>“Ela está faltando ao trabalho.”</strong></div><div><span>POR DENTRO</span><strong>“Eu tentei parar ontem. Não consegui.”</strong></div></div></section>
+
+    <section class="scene" id="quiz" data-chapter="7" tabindex="-1">
+      <div class="section-inner narrow"><p class="eyebrow amber-text">07 / Mito ou alerta?</p><h2>Frases que<br><em>ninguém percebe.</em></h2><p class="body-copy">Uma frase isolada não diagnostica alcoolismo. Mas algumas podem convidar a uma conversa.</p><div class="quiz-card" id="quizCard"><div class="quiz-progress"><span id="quizNumber">01</span><div><i id="quizBar"></i></div><span>04</span></div><p class="quiz-question" id="quizQuestion"></p><div class="quiz-options"><button data-answer="myth">MITO</button><button data-answer="truth">VERDADE</button></div><div class="quiz-feedback" id="quizFeedback" aria-live="polite"></div></div><button class="text-button next-button hidden" id="quizContinue" data-next="recovery">SEGUIR <span>→</span></button></div>
+    </section>
+
+    <section class="scene scene-recovery" id="recovery" data-chapter="8" tabindex="-1">
+      <div class="section-inner"><p class="eyebrow green-text">08 / Existe caminho de volta</p><h2>Recuperação é um<br><em>processo.</em></h2><div class="recovery-layout"><p class="body-copy">Pode envolver acompanhamento profissional, apoio familiar, psicoterapia, tratamento médico quando necessário, grupos de apoio e mudanças na rotina.</p><div class="recovery-list"><div><b>01</b> pedir ajuda</div><div><b>02</b> criar apoio</div><div><b>03</b> recuperar o controle</div></div></div><div class="data-counter"><strong data-counter="73">0</strong><span>milhões de pessoas vivem com transtornos relacionados ao uso de álcool no mundo, segundo a OMS.</span><small>Fonte: Organização Mundial da Saúde · dado ilustrativo do relatório global</small></div><div class="factor-grid"><div class="panel-label">FATORES QUE PODEM SE SOMAR <span>contexto, não diagnóstico</span></div><button data-factor="estresse">ESTRESSE <i class="heat high"></i></button><button data-factor="pressao">PRESSÃO SOCIAL <i class="heat medium"></i></button><button data-factor="isolamento">ISOLAMENTO <i class="heat high"></i></button><button data-factor="apoio">REDE DE APOIO <i class="heat low"></i></button><p id="factorDetail">Toque em um fator para ler uma explicação.</p></div><button class="text-button next-button" data-next="help">VER ONDE COMEÇAR <span>→</span></button></div>
+    </section>
+
+    <section class="scene scene-help" id="help" data-chapter="9" tabindex="-1">
+      <div class="section-inner"><div class="help-heading"><p class="eyebrow green-text">09 / E agora?</p><h2>Se isso parece<br><em>familiar.</em></h2></div><div class="help-grid"><a href="https://www.gov.br/saude/pt-br/composicao/saes/desmad" target="_blank" rel="noreferrer"><span>01</span><strong>Converse com alguém de confiança</strong><small>Não carregue isso sozinho.</small>↗</a><a href="https://www.gov.br/saude/pt-br" target="_blank" rel="noreferrer"><span>02</span><strong>Procure um profissional de saúde</strong><small>O SUS pode ser uma porta de entrada.</small>↗</a><a href="https://www.gov.br/saude/pt-br/composicao/saes/desmad" target="_blank" rel="noreferrer"><span>03</span><strong>Busque um CAPS AD</strong><small>Serviço especializado em álcool e outras drogas.</small>↗</a><div class="emergency"><span>EMERGÊNCIA</span><strong>Procure atendimento imediato ou ligue 192.</strong><small>Em risco imediato, o SAMU atende 24 horas.</small></div></div><button class="text-button next-button" data-next="final">FAZER UMA ÚLTIMA PERGUNTA <span>→</span></button></div></section>
+
+    <section class="scene scene-final" id="final" data-chapter="10" tabindex="-1"><div class="final-content"><div class="final-glass"><div class="empty-wine"></div></div><p class="eyebrow green-text">10 / Uma última pergunta</p><h2>Em algum momento,<br>você percebeu quando<br>o copo deixou de ser<br><em>uma escolha?</em></h2><p class="final-note">Talvez nunca tenha sido apenas sobre o copo.</p><div class="final-actions"><button class="primary-button" data-next="help">ONDE PROCURAR AJUDA <span>↗</span></button><button class="text-button" id="restartButton">RECOMEÇAR EXPERIÊNCIA <span>↻</span></button></div></div></section>
+  </main>
+  <footer><span>ERA SÓ UM COPO</span><span>Informação não substitui avaliação profissional.</span><a href="https://www.who.int/health-topics/alcohol" target="_blank" rel="noreferrer">FONTES ↗</a></footer>
+  <script src="script.js"></script>
+</body>
+</html>
