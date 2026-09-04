@@ -388,6 +388,38 @@ function addCrisisSimulation() {
   }));
 }
 
+function addMirrorInvestigation() {
+  const scene = document.querySelector('#mirror');
+  const copy = scene.querySelector('.mirror-copy');
+  const oldButton = copy.querySelector('.text-button');
+  oldButton.classList.add('hidden');
+  copy.querySelectorAll('.mirror-line,.mirror-slider-label,.outside-inside').forEach(element => { element.hidden = true; });
+  scene.querySelector('.mirror-split').hidden = true;
+  const investigation = document.createElement('div');
+  investigation.className = 'mirror-investigation';
+  investigation.innerHTML = '<p class="panel-label">INVESTIGAÇÃO // O ESPELHO <span>uma história pode ter mais de uma camada</span></p><h2>Você sabe por que<br><em>alguém bebeu?</em></h2><p class="mirror-question">Escolha uma explicação. Depois veja o que estava fora do seu campo de visão.</p><div class="mirror-theories"><button type="button" data-theory="fun">Porque queria se divertir</button><button type="button" data-theory="friends">Porque os amigos beberam</button><button type="button" data-theory="curiosity">Porque estava curioso</button><button type="button" data-theory="pain">Porque estava mal</button><button type="button" data-theory="unknown">Você não sabe</button></div><p class="mirror-verdict" aria-live="polite"></p><div class="mirror-fragments" hidden><p class="panel-label">FRAGMENTOS ENCONTRADOS</p><button type="button">01 · Ele disse que estava tudo bem.</button><button type="button">02 · Os amigos estavam bebendo.</button><button type="button">03 · Ele não queria parecer diferente.</button><button type="button">04 · Ninguém perguntou como ele estava.</button></div><div class="mirror-second" hidden><strong>Agora escolha novamente.</strong><p>O que poderia fazer você mudar de decisão?</p><div><button type="button" data-second="group">Se todo mundo estivesse fazendo</button><button type="button" data-second="friend">Se meu melhor amigo insistisse</button><button type="button" data-second="curiosity">Se eu estivesse muito curioso</button><button type="button" data-second="forget">Se eu estivesse tentando esquecer algo</button><button type="button" data-second="none">Nada disso</button></div><p class="mirror-reflection" aria-live="polite"></p></div><p class="mirror-conclusion" hidden>Você não viu a história inteira. Comportamentos relacionados ao álcool podem envolver pessoa, emoções, ambiente, curiosidade e pressão. Nenhuma dessas respostas define quem alguém é.</p><button class="text-button mirror-investigation-next hidden" type="button">CONTINUAR <span>→</span></button>';
+  copy.prepend(investigation);
+  const verdict = investigation.querySelector('.mirror-verdict');
+  const fragments = investigation.querySelector('.mirror-fragments');
+  const second = investigation.querySelector('.mirror-second');
+  const conclusion = investigation.querySelector('.mirror-conclusion');
+  investigation.querySelectorAll('[data-theory]').forEach(button => button.addEventListener('click', () => {
+    investigation.querySelectorAll('[data-theory]').forEach(item => item.classList.toggle('selected', item === button));
+    verdict.textContent = 'Você escolheu uma explicação. Mas você realmente sabe?';
+    fragments.hidden = false;
+    second.hidden = false;
+  }));
+  investigation.querySelectorAll('[data-second]').forEach(button => button.addEventListener('click', () => {
+    investigation.querySelectorAll('[data-second]').forEach(item => item.classList.toggle('selected', item === button));
+    const responses = { group: 'Então o grupo pode importar nessa situação.', friend: 'A insistência de alguém próximo pode mudar o contexto.', curiosity: 'Curiosidade também pode participar de uma decisão.', forget: 'Emoções difíceis podem influenciar escolhas.', none: 'Você não precisa encontrar uma explicação única.' };
+    investigation.querySelector('.mirror-reflection').textContent = `${responses[button.dataset.second]} Nenhuma dessas respostas define quem você é.`;
+    conclusion.hidden = false;
+    investigation.querySelector('.mirror-investigation-next').classList.remove('hidden');
+    unlockDiscovery('mirror');
+  }));
+  investigation.querySelector('.mirror-investigation-next').addEventListener('click', () => showScene('quiz'));
+}
+
 addFirstExperience();
 addRoutineTimeline();
 addRecoveryJourney();
@@ -395,6 +427,7 @@ addBrainLaboratory();
 addAttentionChallenge();
 addTimedDecision();
 addCrisisSimulation();
+addMirrorInvestigation();
 addCuriosityReveal('#cycle', 'Por que uma coisa que alivia pode voltar ainda mais forte?', 'O alívio rápido pode ensinar o cérebro a repetir uma associação. Quando o efeito passa, o estresse continua ali.');
 addCuriosityReveal('#choice', 'Você faria a mesma escolha se ninguém estivesse olhando?', 'Pertencer a um grupo e lidar com um dia difícil podem influenciar decisões. Isso não é um diagnóstico: é um convite para observar o contexto.');
 addCuriosityReveal('#impact', 'Será que o copo fica só na sua mão?', 'Sono, humor, relações, estudos, trabalho e segurança também podem sentir efeitos. Cada pessoa tem uma história diferente.');
