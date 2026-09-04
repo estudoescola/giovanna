@@ -26,6 +26,7 @@ let quizIndex = 0;
 let visited = [];
 const chapterNames = ['O copo', 'O ciclo', 'O cérebro', 'A escolha', 'O impacto', 'O espelho', 'Mitos', 'Saída', 'Ajuda', 'Última pergunta'];
 const chapterTargets = ['intro', 'cycle', 'brain', 'choice', 'impact', 'mirror', 'quiz', 'recovery', 'help', 'final'];
+const chapterIcons = ['◒', '↻', '✦', '◇', '◉', '◐', '?', '↗', '♡', '○'];
 const discoveryNames = {
   first: 'Primeiro passo', cycle: 'Entendi o ciclo', brain: 'Explorei o cérebro', choice: 'Fiz uma escolha', impact: 'Observei os impactos', mirror: 'Olhei por dentro', quiz: 'Separei mito de realidade', recovery: 'Encontrei caminhos de ajuda'
 };
@@ -60,9 +61,16 @@ experienceHud.querySelector('.hud-toggle').addEventListener('click', event => {
 
 const journeyMap = document.createElement('div');
 journeyMap.className = 'journey-map';
-journeyMap.innerHTML = `<p class="panel-label">SUA JORNADA <span>capítulos visitados ficam coloridos</span></p><div>${chapterNames.map((name, index) => `<button type="button" data-map-target="${chapterTargets[index]}"><i>${String(index + 1).padStart(2, '0')}</i><span>${name}</span></button>`).join('')}</div>`;
+journeyMap.innerHTML = `<p class="panel-label">SUA JORNADA <span>capítulos visitados ficam coloridos</span></p><div>${chapterNames.map((name, index) => `<button type="button" data-map-target="${chapterTargets[index]}"><i>${chapterIcons[index]}</i><span>${String(index + 1).padStart(2, '0')} ${name}</span></button>`).join('')}</div>`;
 chapterNav.prepend(journeyMap);
 journeyMap.querySelectorAll('[data-map-target]').forEach(button => button.addEventListener('click', () => showScene(button.dataset.mapTarget)));
+
+navItems.forEach((item, index) => {
+  item.innerHTML = `<span class="nav-icon">${chapterIcons[index]}</span>${item.innerHTML}`;
+});
+
+document.querySelectorAll('.cycle-node').forEach(button => { button.setAttribute('aria-pressed', String(button.classList.contains('active'))); });
+document.querySelectorAll('.brain-tab').forEach(button => { button.setAttribute('aria-selected', String(button.classList.contains('active'))); });
 
 const discoveryToast = document.createElement('div');
 discoveryToast.className = 'discovery-toast';
@@ -263,6 +271,7 @@ document.querySelectorAll('.brain-tab').forEach(button => button.addEventListene
 document.querySelectorAll('.choice-card').forEach(button => button.addEventListener('click', () => {
   document.querySelectorAll('.choice-card').forEach(item => item.classList.remove('selected'));
   button.classList.add('selected');
+  document.querySelectorAll('.choice-card').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
   const messages = { talk: 'Você procurou presença. Uma escolha também pode ser pedir para não atravessar a noite sozinho.', walk: 'Você mudou o ritmo. Nem todo alívio precisa vir em um copo.', drink: 'Você escolheu beber. Na próxima semana, o dia difícil voltou. E a espera pelo fim do dia começou mais cedo.' };
   document.querySelector('#choiceResult').textContent = messages[button.dataset.choice];
   const path = { talk: [55, 20, 90, 18], walk: [45, 28, 70, 24], drink: [82, 70, 25, 68] }[button.dataset.choice];
@@ -275,7 +284,7 @@ document.querySelectorAll('.choice-card').forEach(button => button.addEventListe
   document.querySelector('#choiceContinue').classList.remove('hidden');
 }));
 
-document.querySelectorAll('.impact-orbit').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.impact-orbit').forEach(item => item.classList.remove('active')); button.classList.add('active'); document.querySelector('#impactDetail').textContent = impactContent[button.dataset.impact]; }));
+document.querySelectorAll('.impact-orbit').forEach(button => button.addEventListener('click', () => { document.querySelectorAll('.impact-orbit').forEach(item => { item.classList.remove('active'); item.setAttribute('aria-pressed', 'false'); }); button.classList.add('active'); button.setAttribute('aria-pressed', 'true'); document.querySelector('#impactDetail').textContent = impactContent[button.dataset.impact]; }));
 document.querySelectorAll('.impact-orbit').forEach(button => button.addEventListener('click', () => unlockDiscovery('impact')));
 
 document.querySelector('.scene-mirror .text-button').addEventListener('click', event => { const lines = document.querySelectorAll('.mirror-line'); const current = [...lines].findIndex(line => line.classList.contains('active')); if (current < lines.length - 1) { lines[current].classList.remove('active'); lines[current + 1].classList.add('active'); event.currentTarget.textContent = 'CONTINUAR  →'; } else showScene('quiz'); });
