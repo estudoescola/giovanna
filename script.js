@@ -35,7 +35,7 @@ const chapterNames = ['O copo', 'O ciclo', 'O cérebro', 'A escolha', 'O impacto
 const chapterTargets = ['intro', 'cycle', 'brain', 'choice', 'impact', 'mirror', 'quiz', 'recovery', 'help', 'final'];
 const chapterIcons = ['◒', '↻', '✦', '◇', '◉', '◐', '?', '↗', '♡', '○'];
 const discoveryNames = {
-  first: 'Primeiro passo', cycle: 'Entendi o ciclo', brain: 'Explorei o cérebro', choice: 'Fiz uma escolha', impact: 'Observei os impactos', mirror: 'Olhei por dentro', quiz: 'Separei mito de realidade', recovery: 'Encontrei caminhos de ajuda', portal: 'Atravessei o copo'
+  first: 'Primeiro passo', cycle: 'Entendi o ciclo', brain: 'Explorei o cérebro', choice: 'Fiz uma escolha', impact: 'Observei os impactos', mirror: 'Olhei por dentro', quiz: 'Separei mito de realidade', recovery: 'Encontrei caminhos de ajuda', portal: 'Atravessei o copo', crisis: 'Reconheci sinais de emergência'
 };
 let discoveries = [];
 let experienceStats = { knowledge: 0, support: 20, stress: 35 };
@@ -95,7 +95,7 @@ function updateExperienceUI() {
   document.querySelector('#knowledgeValue').textContent = `${experienceStats.knowledge}%`;
   document.querySelector('#supportValue').textContent = `${experienceStats.support}%`;
   document.querySelector('#stressValue').textContent = `${experienceStats.stress}%`;
-  document.querySelector('#discoveryValue').textContent = `${discoveries.length}/9`;
+  document.querySelector('#discoveryValue').textContent = `${discoveries.length}/10`;
   journeyMap.querySelectorAll('[data-map-target]').forEach(button => {
     const target = document.getElementById(button.dataset.mapTarget);
     button.classList.toggle('visited', target.classList.contains('active') || visited.includes(target.id));
@@ -276,10 +276,111 @@ function addBrainLaboratory() {
   }));
 }
 
+function addAttentionChallenge() {
+  const info = document.querySelector('#brain .brain-info');
+  const challenge = document.createElement('div');
+  challenge.className = 'attention-challenge';
+  challenge.innerHTML = '<p class="panel-label">DESAFIO DE ATENÇÃO <span>encontre o símbolo pedido</span></p><p class="attention-prompt">Toque em <strong>✦</strong> antes que o tempo acabe.</p><div class="attention-timer" aria-live="polite">5s</div><div class="attention-grid"></div><p class="attention-result" aria-live="polite"></p><button class="text-button attention-start" type="button">COMEÇAR DESAFIO <span>→</span></button>';
+  info.append(challenge);
+  const grid = challenge.querySelector('.attention-grid');
+  const result = challenge.querySelector('.attention-result');
+  const timer = challenge.querySelector('.attention-timer');
+  const symbols = ['●', '◆', '○', '▲', '✦', '□', '◇', '△', '■'];
+  let interval;
+  let running = false;
+  function start() {
+    clearInterval(interval);
+    running = true;
+    let remaining = 5;
+    timer.textContent = `${remaining}s`;
+    result.textContent = '';
+    grid.innerHTML = [...symbols].sort(() => Math.random() - .5).map(symbol => `<button type="button" data-symbol="${symbol}">${symbol}</button>`).join('');
+    challenge.querySelector('.attention-start').classList.add('hidden');
+    interval = setInterval(() => {
+      remaining -= 1;
+      timer.textContent = `${remaining}s`;
+      if (remaining <= 0) {
+        clearInterval(interval);
+        running = false;
+        result.textContent = 'O tempo acabou. Tente novamente, sem pressa.';
+        challenge.querySelector('.attention-start').classList.remove('hidden');
+      }
+    }, 1000);
+    grid.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
+      if (!running) return;
+      if (button.dataset.symbol === '✦') {
+        clearInterval(interval);
+        running = false;
+        button.classList.add('found');
+        result.textContent = 'ENCONTRADO. Atenção e coordenação podem ficar mais difíceis sob efeito do álcool.';
+        challenge.querySelector('.attention-start').classList.remove('hidden');
+        unlockDiscovery('brain');
+      } else {
+        button.classList.add('wrong');
+      }
+    }));
+  }
+  challenge.querySelector('.attention-start').addEventListener('click', start);
+}
+
+function addTimedDecision() {
+  const section = document.querySelector('#choice .section-inner');
+  const challenge = document.createElement('div');
+  challenge.className = 'timed-decision';
+  challenge.innerHTML = '<p class="panel-label">DECISÃO SOB PRESSÃO <span>tempo narrativo, não teste</span></p><h3>Seu amigo quer voltar para casa. Quem vai dirigir bebeu.</h3><div class="decision-timer" aria-live="polite">3.0s</div><div class="decision-options"><button type="button" data-decision="stay">Fico com meu amigo e procuro outra carona</button><button type="button" data-decision="drive">Deixo ele dirigir mesmo assim</button><button type="button" data-decision="call">Peço ajuda a um adulto ou serviço</button></div><p class="decision-result" aria-live="polite"></p><button class="text-button decision-start" type="button">INICIAR SITUAÇÃO <span>→</span></button>';
+  section.insertBefore(challenge, section.querySelector('#choiceGrid'));
+  let interval;
+  let active = false;
+  challenge.querySelector('.decision-start').addEventListener('click', () => {
+    clearInterval(interval);
+    let remaining = 3;
+    active = true;
+    challenge.querySelector('.decision-timer').textContent = '3.0s';
+    challenge.querySelector('.decision-result').textContent = '';
+    challenge.querySelector('.decision-start').classList.add('hidden');
+    interval = setInterval(() => {
+      remaining -= .1;
+      challenge.querySelector('.decision-timer').textContent = `${Math.max(0, remaining).toFixed(1)}s`;
+      if (remaining <= 0) {
+        clearInterval(interval);
+        active = false;
+        challenge.querySelector('.decision-result').textContent = 'O tempo passou. Em uma situação real, não espere: peça ajuda e impeça que alguém alcoolizado dirija.';
+        challenge.querySelector('.decision-start').classList.remove('hidden');
+      }
+    }, 100);
+  });
+  challenge.querySelectorAll('[data-decision]').forEach(button => button.addEventListener('click', () => {
+    if (!active) return;
+    clearInterval(interval);
+    active = false;
+    challenge.querySelector('.decision-result').textContent = button.dataset.decision === 'drive'
+      ? 'ALERTA. Álcool e direção aumentam riscos. Procure uma alternativa segura.'
+      : 'BOA PAUSA. Não deixe alguém alcoolizado dirigir; procure uma alternativa segura e um adulto de confiança.';
+    challenge.querySelector('.decision-start').classList.remove('hidden');
+    unlockDiscovery('choice');
+  }));
+}
+
+function addCrisisSimulation() {
+  const section = document.querySelector('#help .section-inner');
+  const simulation = document.createElement('div');
+  simulation.className = 'crisis-simulation';
+  simulation.innerHTML = '<p class="panel-label">AGORA É SÉRIO <span>identifique sinais de emergência</span></p><h3>Alguém não está bem.</h3><p>Marque os sinais que exigem atendimento imediato:</p><div class="crisis-signs"><button type="button" data-crisis="unresponsive">Não responde</button><button type="button" data-crisis="breathing">Respiração anormal</button><button type="button" data-crisis="seizure">Convulsão</button><button type="button" data-crisis="unconscious">Está inconsciente</button></div><p class="crisis-result" aria-live="polite"></p>';
+  section.insertBefore(simulation, section.querySelector('.help-grid'));
+  simulation.querySelectorAll('[data-crisis]').forEach(button => button.addEventListener('click', () => {
+    button.classList.toggle('selected');
+    simulation.querySelector('.crisis-result').textContent = 'Fique com a pessoa, não a deixe sozinha e ligue 192. Não ofereça café nem banho frio.';
+    unlockDiscovery('crisis');
+  }));
+}
+
 addFirstExperience();
 addRoutineTimeline();
 addRecoveryJourney();
 addBrainLaboratory();
+addAttentionChallenge();
+addTimedDecision();
+addCrisisSimulation();
 
 document.querySelectorAll('[data-next]').forEach(button => button.addEventListener('click', () => showScene(button.dataset.next)));
 navItems.forEach(item => item.addEventListener('click', () => showScene(item.dataset.target)));
