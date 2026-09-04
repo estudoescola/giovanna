@@ -77,6 +77,53 @@ document.querySelector('.brand').addEventListener('click', event => {
   showScene('intro');
 });
 
+function addFirstExperience() {
+  const section = document.querySelector('#first .section-inner');
+  const continueButton = section.querySelector('.next-button');
+  const panel = document.createElement('div');
+  panel.className = 'first-experience';
+  panel.innerHTML = '<p class="panel-label">UMA SITUAÇÃO COTIDIANA</p><p>Uma festa. Amigos. Música. Alguém oferece um copo.</p><strong>Você aceita?</strong><div class="first-options"><button type="button" data-first-choice="yes">SIM</button><button type="button" data-first-choice="no">NÃO</button></div><p class="first-result" aria-live="polite"></p>';
+  section.insertBefore(panel, continueButton);
+  continueButton.disabled = true;
+  panel.querySelectorAll('[data-first-choice]').forEach(button => button.addEventListener('click', () => {
+    panel.querySelectorAll('[data-first-choice]').forEach(option => option.classList.toggle('selected', option === button));
+    panel.querySelector('.first-result').textContent = button.dataset.firstChoice === 'yes'
+      ? 'Você aceitou. Uma primeira experiência pode ser social, curiosa ou simplesmente circunstancial.'
+      : 'Você recusou. Não aceitar também é uma escolha válida, e cada pessoa tem seu próprio contexto.';
+    continueButton.disabled = false;
+  }));
+}
+
+function addRoutineTimeline() {
+  const section = document.querySelector('#cycle .section-inner');
+  const timeline = document.createElement('div');
+  timeline.className = 'routine-timeline';
+  timeline.innerHTML = '<p class="panel-label">COMO UMA JUSTIFICATIVA PODE MUDAR</p><button class="timeline-step active" type="button"><b>SEXTA-FEIRA</b><span>Festa e amigos</span></button><button class="timeline-step" type="button"><b>ALGUMAS SEMANAS DEPOIS</b><span>“Só no fim de semana.”</span></button><button class="timeline-step" type="button"><b>DEPOIS</b><span>“Foi uma semana difícil.”</span></button><button class="timeline-step" type="button"><b>MAIS TARDE</b><span>“Eu mereço.”</span></button>';
+  section.insertBefore(timeline, section.querySelector('.cycle-layout'));
+  timeline.querySelectorAll('.timeline-step').forEach((step, index, steps) => step.addEventListener('click', () => {
+    steps.forEach(item => item.classList.remove('active'));
+    step.classList.add('active');
+  }));
+}
+
+function addRecoveryJourney() {
+  const section = document.querySelector('#recovery .section-inner');
+  const journey = document.createElement('div');
+  journey.className = 'recovery-journey';
+  journey.innerHTML = '<p class="panel-label">UM CAMINHO POSSÍVEL</p><div class="journey-track"><button class="journey-step active" type="button">RECONHECER</button><button class="journey-step" type="button">BUSCAR INFORMAÇÃO</button><button class="journey-step" type="button">CONVERSAR</button><button class="journey-step" type="button">PROCURAR AJUDA</button><button class="journey-step" type="button">TRATAMENTO</button><button class="journey-step" type="button">RECUPERAÇÃO</button></div><p class="journey-detail" aria-live="polite">Perceber mudanças pode ser o primeiro passo. Pedir ajuda não é fracasso; é uma decisão.</p>';
+  section.insertBefore(journey, section.querySelector('.data-counter'));
+  const details = ['Perceber mudanças pode ser o primeiro passo. Pedir ajuda não é fracasso; é uma decisão.', 'Informação ajuda a trocar culpa por compreensão e a encontrar caminhos possíveis.', 'Uma conversa segura pode começar com alguém de confiança.', 'Profissionais e serviços de saúde podem avaliar o contexto e orientar o cuidado.', 'O tratamento é individualizado e pode combinar diferentes formas de suporte.', 'Recuperação não é uma linha reta. Apoio contínuo também faz parte do caminho.'];
+  journey.querySelectorAll('.journey-step').forEach((step, index, steps) => step.addEventListener('click', () => {
+    steps.forEach(item => item.classList.remove('active'));
+    step.classList.add('active');
+    journey.querySelector('.journey-detail').textContent = details[index];
+  }));
+}
+
+addFirstExperience();
+addRoutineTimeline();
+addRecoveryJourney();
+
 document.querySelectorAll('[data-next]').forEach(button => button.addEventListener('click', () => showScene(button.dataset.next)));
 navItems.forEach(item => item.addEventListener('click', () => showScene(item.dataset.target)));
 window.addEventListener('hashchange', showSceneFromHash);
