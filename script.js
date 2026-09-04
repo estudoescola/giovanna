@@ -141,6 +141,7 @@ function fillIntroGlass() {
   if (wine.style.height === '55%') return;
   wine.style.height = '55%';
   caption.textContent = 'um primeiro gesto';
+  unlockDiscovery('first');
 }
 
 const glassStage = document.querySelector('#glassStage');
@@ -183,6 +184,7 @@ function addRoutineTimeline() {
   timeline.querySelectorAll('.timeline-step').forEach((step, index, steps) => step.addEventListener('click', () => {
     steps.forEach(item => item.classList.remove('active'));
     step.classList.add('active');
+    if (index > 0) unlockDiscovery('cycle');
   }));
 }
 
