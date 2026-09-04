@@ -35,7 +35,7 @@ const chapterNames = ['O copo', 'O ciclo', 'O cérebro', 'A escolha', 'O impacto
 const chapterTargets = ['intro', 'cycle', 'brain', 'choice', 'impact', 'mirror', 'quiz', 'recovery', 'help', 'final'];
 const chapterIcons = ['◒', '↻', '✦', '◇', '◉', '◐', '?', '↗', '♡', '○'];
 const discoveryNames = {
-  first: 'Primeiro passo', cycle: 'Entendi o ciclo', brain: 'Explorei o cérebro', choice: 'Fiz uma escolha', impact: 'Observei os impactos', mirror: 'Olhei por dentro', quiz: 'Separei mito de realidade', recovery: 'Encontrei caminhos de ajuda'
+  first: 'Primeiro passo', cycle: 'Entendi o ciclo', brain: 'Explorei o cérebro', choice: 'Fiz uma escolha', impact: 'Observei os impactos', mirror: 'Olhei por dentro', quiz: 'Separei mito de realidade', recovery: 'Encontrei caminhos de ajuda', portal: 'Atravessei o copo'
 };
 let discoveries = [];
 let experienceStats = { knowledge: 0, support: 20, stress: 35 };
@@ -84,11 +84,18 @@ discoveryToast.className = 'discovery-toast';
 discoveryToast.setAttribute('role', 'status');
 document.body.append(discoveryToast);
 
+const guide = document.createElement('div');
+guide.className = 'guide-character';
+guide.innerHTML = '<div class="guide-avatar"><span class="guide-head"></span><span class="guide-body"></span></div><p class="guide-message">Toque no copo.</p>';
+document.body.append(guide);
+const guideMessage = guide.querySelector('.guide-message');
+const guideMessages = { intro: 'Toque no copo.', first: 'Você atravessou. Observe o começo.', cycle: 'Observe o ciclo.', brain: 'Explore o cérebro.', choice: 'Agora você precisa escolher.', impact: 'Veja o que ocupa espaço.', mirror: 'Olhe além da aparência.', quiz: 'Descubra o que é mito ou fato.', recovery: 'Ninguém precisa fazer isso sozinho.', help: 'Buscar ajuda também é uma escolha.', final: 'O que veio antes do copo?' };
+
 function updateExperienceUI() {
   document.querySelector('#knowledgeValue').textContent = `${experienceStats.knowledge}%`;
   document.querySelector('#supportValue').textContent = `${experienceStats.support}%`;
   document.querySelector('#stressValue').textContent = `${experienceStats.stress}%`;
-  document.querySelector('#discoveryValue').textContent = `${discoveries.length}/8`;
+  document.querySelector('#discoveryValue').textContent = `${discoveries.length}/9`;
   journeyMap.querySelectorAll('[data-map-target]').forEach(button => {
     const target = document.getElementById(button.dataset.mapTarget);
     button.classList.toggle('visited', target.classList.contains('active') || visited.includes(target.id));
@@ -127,6 +134,7 @@ function showScene(id) {
   visited = [...new Set([...visited, id])];
   localStorage.setItem('eraCopoVisited', JSON.stringify(visited));
   document.body.dataset.chapter = scene.dataset.chapter;
+  guideMessage.textContent = guideMessages[id] || 'Continue explorando.';
   updateExperienceUI();
   if (id === 'first') unlockDiscovery('first');
   if (id === 'cycle') unlockDiscovery('cycle');
@@ -149,21 +157,48 @@ function showSceneFromHash() {
   if (target && document.getElementById(target)?.classList.contains('scene')) showScene(target);
 }
 
-function fillIntroGlass() {
+let glassTouches = 0;
+const maxGlassTouches = 5;
+
+function createGlassParticles() {
+  const stage = document.querySelector('#glassStage');
+  for (let index = 0; index < 12; index += 1) {
+    const particle = document.createElement('i');
+    particle.className = 'glass-particle';
+    particle.style.setProperty('--x', `${Math.random() * 130 - 65}px`);
+    particle.style.setProperty('--y', `${Math.random() * -120 - 20}px`);
+    particle.style.setProperty('--delay', `${Math.random() * .4}s`);
+    stage.append(particle);
+  }
+}
+
+function triggerGlassTouch() {
   const wine = document.querySelector('#introWine');
   const caption = document.querySelector('#glassCaption');
-  if (wine.style.height === '55%') return;
-  wine.style.height = '55%';
-  caption.textContent = 'um primeiro gesto';
-  unlockDiscovery('first');
+  if (glassTouches >= maxGlassTouches) return;
+  glassTouches += 1;
+    caption.textContent = `${[`Ele reagiu.`, `O líquido começa a subir.`, `Você percebeu as partículas.`, `O cenário está mudando.`, `O copo virou uma passagem.`][glassTouches - 1]} toque ${glassTouches} de ${maxGlassTouches}`;
+  glassStage.classList.add(`touch-${glassTouches}`);
+  glassStage.classList.remove('glass-shake');
+  void glassStage.offsetWidth;
+  glassStage.classList.add('glass-shake');
+  if (glassTouches === 2) wine.style.height = '55%';
+  if (glassTouches === 3) createGlassParticles();
+  if (glassTouches === 4) guideMessage.textContent = 'Você percebeu algo.';
+  if (glassTouches === 5) {
+    glassStage.classList.add('portal-active');
+    unlockDiscovery('portal');
+    setTimeout(() => showScene('first'), 900);
+  }
+  if (navigator.vibrate) navigator.vibrate(glassTouches === 5 ? [35, 25, 70] : 18);
 }
 
 const glassStage = document.querySelector('#glassStage');
-glassStage.addEventListener('click', fillIntroGlass);
+glassStage.addEventListener('click', triggerGlassTouch);
 glassStage.addEventListener('keydown', event => {
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault();
-    fillIntroGlass();
+    triggerGlassTouch();
   }
 });
 
@@ -180,7 +215,7 @@ function addFirstExperience() {
   panel.innerHTML = '<p class="panel-label">UMA SITUAÇÃO COTIDIANA</p><p>Uma festa. Amigos. Música. Alguém oferece um copo.</p><strong>Você aceita?</strong><div class="first-options"><button type="button" data-first-choice="yes">SIM</button><button type="button" data-first-choice="no">NÃO</button></div><p class="first-result" aria-live="polite"></p>';
   section.insertBefore(panel, continueButton);
   continueButton.disabled = true;
-  panel.querySelectorAll('[data-first-choice]').forEach(button => button.addEventListener('click', () => {
+    panel.querySelectorAll('[data-first-choice]').forEach(button => button.addEventListener('click', (event) => {
     panel.querySelectorAll('[data-first-choice]').forEach(option => option.classList.toggle('selected', option === button));
     panel.querySelector('.first-result').textContent = button.dataset.firstChoice === 'yes'
       ? 'Você aceitou. Uma primeira experiência pode ser social, curiosa ou simplesmente circunstancial.'
@@ -337,4 +372,4 @@ function animateCounter() { const counter = document.querySelector('[data-counte
 
 document.querySelector('#themeToggle').addEventListener('click', () => document.body.classList.toggle('light'));
 document.querySelector('#soundToggle').addEventListener('click', event => { const on = event.currentTarget.dataset.on !== 'true'; event.currentTarget.dataset.on = on; event.currentTarget.textContent = on ? '◉' : '◌'; event.currentTarget.title = on ? 'Som ambiente ativado' : 'Som ambiente desligado'; });
-document.querySelector('#restartButton').addEventListener('click', () => { localStorage.removeItem('eraCopoVisited'); localStorage.removeItem('eraCopoDiscoveries'); localStorage.removeItem('eraCopoStats'); visited = []; discoveries = []; experienceStats = { knowledge: 0, support: 20, stress: 35 }; quizIndex = 0; quizCorrect = 0; renderQuiz(); document.querySelector('#introWine').style.height = '0'; document.querySelector('#glassCaption').textContent = 'clique para encher'; document.querySelectorAll('.mirror-line').forEach((line, index) => line.classList.toggle('active', index === 0)); updateExperienceUI(); showScene('intro'); });
+document.querySelector('#restartButton').addEventListener('click', () => { localStorage.removeItem('eraCopoVisited'); localStorage.removeItem('eraCopoDiscoveries'); localStorage.removeItem('eraCopoStats'); visited = []; discoveries = []; experienceStats = { knowledge: 0, support: 20, stress: 35 }; quizIndex = 0; quizCorrect = 0; glassTouches = 0; renderQuiz(); document.querySelector('#introWine').style.height = '0'; document.querySelector('#glassCaption').textContent = 'toque no copo · toque 0 de 5'; document.querySelector('#glassStage').className = 'glass-stage'; document.querySelectorAll('.glass-particle').forEach(particle => particle.remove()); document.querySelectorAll('.mirror-line').forEach((line, index) => line.classList.toggle('active', index === 0)); updateExperienceUI(); showScene('intro'); });
